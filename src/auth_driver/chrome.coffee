@@ -146,7 +146,9 @@ class Dropbox.AuthDriver.ChromeExtension extends Dropbox.AuthDriver.ChromeBase
       receiverHref = message.dropbox_oauth_receiver_href
       if @locationStateParam(receiverHref) is stateParam
         stateParam = false  # Avoid having this matched in the future.
-        chrome.tabs.remove oauthTab.id if oauthTab
+        if oauthTab
+          chrome.tabs.get oauthTab.id, (tab) ->
+            chrome.tabs.remove oauthTab.id if !chrome.runtime.lastError and tab
         chrome.runtime.onMessage.removeListener listener
         callback Dropbox.Util.Oauth.queryParamsFromUrl(receiverHref)
     chrome.runtime.onMessage.addListener listener
